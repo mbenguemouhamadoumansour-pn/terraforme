@@ -97,17 +97,17 @@ resource "aws_route_table_association" "private" {
 
 resource "aws_security_group" "bastion" {
   name        = "bastion-sg"
-  description = "Security group pour le serveur bastion"
+  description = "Security group for bastion server"
   vpc_id      = aws_vpc.main.id
   ingress {
-    description = "SSH depuis votre IP"
+    description = "SSH from your IP"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
     cidr_blocks = [var.my_ip]
   }
   egress {
-    description = "Tout le trafic sortant"
+    description = "All outbound traffic"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
@@ -120,17 +120,17 @@ resource "aws_security_group" "bastion" {
 
 resource "aws_security_group" "private_instance" {
   name        = "private-instance-sg"
-  description = "Security group pour l'instance privée"
+  description = "Security group for private instance"
   vpc_id      = aws_vpc.main.id
   ingress {
-    description     = "SSH depuis le bastion"
+    description     = "SSH from bastion"
     from_port       = 22
     to_port         = 22
     protocol        = "tcp"
     security_groups = [aws_security_group.bastion.id]
   }
   egress {
-    description = "Tout le trafic sortant"
+    description = "All outbound traffic"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
