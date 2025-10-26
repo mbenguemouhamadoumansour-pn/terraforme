@@ -1,0 +1,60 @@
+pipeline {
+    agent any
+    
+    environment {
+        AWS_REGION = 'us-west-2'
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        
+        stage('Terraform Init') {
+            steps {
+                sh 'terraform init'
+            }
+        }
+        
+        stage('Terraform Validate') {
+            steps {
+                sh 'terraform validate'
+            }
+        }
+        
+        stage('Terraform Plan') {
+            steps {
+                sh 'terraform plan -out=tfplan'
+            }
+        }
+        
+        stage('Approval') {
+            steps {
+                input message: 'Voulez-vous appliquer ce plan Terraform?', ok: 'Déployer'
+            }
+        }
+        
+        stage('Terraform Apply') {
+            steps {
+                sh 'terraform apply -auto-approve tfplan'
+            }
+        }
+        
+        stage('Show Outputs') {
+            steps {
+                sh 'terraform output -json'
+            }
+        }
+    }
+    
+    post {
+        success {
+            echo 'Infrastructure déployée avec succès!'
+        }
+        failure {
+            echo 'Le déploiement a échoué!'
+        }
+    }
+}
